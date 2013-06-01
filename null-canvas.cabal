@@ -1,16 +1,16 @@
-Name:                blank-canvas
+Name:                null-canvas
 Version:             0.2.3
-Synopsis:            HTML5 Canvas Graphics Library
+Synopsis:            HTML5 Canvas Graphics Library - forked Blank Canvas
 Description:         A Haskell port of the HTML5 Canvas API.
                      blank-canvas works by providing a web service that
                      displays the users' Haskell commands inside a browser.
 
 License:             BSD3
 License-file:        LICENSE
-Author:              Andy Gill
-Maintainer:          andygill@ku.edu
+Author:              Andy Gill, Krzysztof Skrzętnicki
+Maintainer:          gtener@gmail.com
 Copyright:           Copyright (c) 2012 The University of Kansas
-Homepage:            http://ittc.ku.edu/csdl/fpg/Tools/BlankCanvas
+Homepage:            https://github.com/Tener/null-canvas
 Category:            Graphics
 Build-type:          Simple
 Extra-source-files:  README
@@ -54,4 +54,4 @@ Library
 
 source-repository head
   type:     git
-  location: git://github.com/andygill/blank-canvas.git
+  location: git://github.com/tener/null-canvas.git

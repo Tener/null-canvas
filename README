@@ -1,3 +1,8 @@
+null-canvas is as fork of blank-canvas with some changes 
+to make it more configurable and composable with other software.
+
+The name has been changed to avoid confusion within .cabal files.
+-------------------------------------------------------
 blank-canvas is a Haskell port of the HTML5 Canvas API.
 Tutorials and examples for the HTML5 for the HTML5 Canvas
 should be trivial to port to this library.
