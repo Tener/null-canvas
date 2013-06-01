@@ -39,7 +39,7 @@ import Graphics.Blank.Events
 import Graphics.Blank.Context
 import Graphics.Blank.Canvas
 import Graphics.Blank.Generated
-import Paths_blank_canvas
+import Paths_null_canvas
 
 -- | blankCanvas is the main entry point into blank-canvas.
 -- A typical invocation would be
@@ -65,8 +65,6 @@ blankCanvas port actions = do
 
 blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> IO ()
 blankCanvasParams port actions dataDir performLogging = do
-   let extraPath = fromMaybe [] extraPathElements
-
    uVar <- newMVar 0
    let getUniq :: IO Int
        getUniq = do
