@@ -4,6 +4,7 @@ module Graphics.Blank
         (
          -- * Starting blank-canvas
           blankCanvas
+        , blankCanvasParams
         -- * Graphics 'Context'
         , Context       -- abstact
         , send
@@ -24,13 +25,15 @@ module Graphics.Blank
 
 import Control.Concurrent
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad (when)
 import Network.Wai.Handler.Warp (run)
 import Web.Scotty as S
---import Network.Wai.Middleware.RequestLogger -- Used when debugging
---import Network.Wai.Middleware.Static
+import Network.Wai.Middleware.RequestLogger
 import qualified Data.Text.Lazy as T
+import qualified Data.Text as TS
 
 import qualified Data.Map as Map
+import Data.Maybe (fromMaybe)
 
 import Graphics.Blank.Events
 import Graphics.Blank.Context
@@ -58,7 +61,11 @@ import Paths_blank_canvas
 blankCanvas :: Int -> (Context -> IO ()) -> IO ()
 blankCanvas port actions = do
    dataDir <- getDataDir
---   print dataDir
+   blankCanvasParams port actions dataDir False
+
+blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> IO ()
+blankCanvasParams port actions dataDir performLogging = do
+   let extraPath = fromMaybe [] extraPathElements
 
    uVar <- newMVar 0
    let getUniq :: IO Int
@@ -81,7 +88,7 @@ blankCanvas port actions = do
             return uq
 
    app <- scottyApp $ do
---        middleware logStdoutDev
+        when performLogging (middleware logStdoutDev)
 
 --        middleware $ staticRoot $ TS.pack $ (dataDir ++ "/static")
 
@@ -97,14 +104,12 @@ blankCanvas port actions = do
         post "/event/:num" $ do
             header "Cache-Control" "max-age=0, no-cache, private, no-store, must-revalidate"
             num <- param "num"
---            liftIO $ print (num :: Int)
             NamedEvent nm event <- jsonData
             db <- liftIO $ readMVar contextDB
             case Map.lookup num db of
                Nothing -> json ()
                Just (Context _ _ callbacks _) -> do
                    db' <- liftIO $ readMVar callbacks
---                   liftIO $ print (nm,event)
                    case Map.lookup nm db' of
                        Nothing -> json ()
                        Just var -> do liftIO $ writeEventQueue var event
@@ -114,12 +119,10 @@ blankCanvas port actions = do
             header "Cache-Control" "max-age=0, no-cache, private, no-store, must-revalidate"
             -- do something and return a new list of commands to the client
             num <- param "num"
---            liftIO $ print (num :: Int)
             let tryPicture picture n = do
                     res <- liftIO $ tryTakeMVar picture
                     case res of
                      Just js -> do
---                            liftIO $ print js
                             text $ T.pack js
                      Nothing | n == 0 ->
                             -- give the browser something to do (approx every second)
