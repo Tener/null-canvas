@@ -40,8 +40,8 @@ instance Show Command where
 arc :: (Float,Float,Float,Float,Float,Bool) -> Canvas ()
 arc = Command . Arc
 
-beginPath :: () -> Canvas ()
-beginPath () = Command BeginPath
+beginPath :: Canvas ()
+beginPath = Command BeginPath
 
 bezierCurveTo :: (Float,Float,Float,Float,Float,Float) -> Canvas ()
 bezierCurveTo = Command . BezierCurveTo
@@ -49,14 +49,14 @@ bezierCurveTo = Command . BezierCurveTo
 clearRect :: (Float,Float,Float,Float) -> Canvas ()
 clearRect = Command . ClearRect
 
-closePath :: () -> Canvas ()
-closePath () = Command ClosePath
+closePath :: Canvas ()
+closePath = Command ClosePath
 
 custom :: String -> Canvas ()
 custom = Command . Custom
 
-fill :: () -> Canvas ()
-fill () = Command Fill
+fill :: Canvas ()
+fill = Command Fill
 
 fillRect :: (Float,Float,Float,Float) -> Canvas ()
 fillRect = Command . FillRect
@@ -91,8 +91,8 @@ miterLimit = Command . MiterLimit
 moveTo :: (Float,Float) -> Canvas ()
 moveTo = Command . MoveTo
 
-restore :: () -> Canvas ()
-restore () = Command Restore
+restore :: Canvas ()
+restore = Command Restore
 
 rotate :: Float -> Canvas ()
 rotate = Command . Rotate
@@ -100,11 +100,11 @@ rotate = Command . Rotate
 scale :: (Float,Float) -> Canvas ()
 scale = Command . Scale
 
-save :: () -> Canvas ()
-save () = Command Save
+save :: Canvas ()
+save = Command Save
 
-stroke :: () -> Canvas ()
-stroke () = Command Stroke
+stroke :: Canvas ()
+stroke = Command Stroke
 
 strokeRect :: (Float,Float,Float,Float) -> Canvas ()
 strokeRect = Command . StrokeRect
