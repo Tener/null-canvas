@@ -29,11 +29,13 @@ import Control.Monad (when)
 import Network.Wai.Handler.Warp (run)
 import Web.Scotty as S
 import Network.Wai.Middleware.RequestLogger
+import Network.Wai.Middleware.Rewrite 
 import qualified Data.Text.Lazy as T
 import qualified Data.Text as TS
 
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import Data.List (stripPrefix)
 
 import Graphics.Blank.Events
 import Graphics.Blank.Context
@@ -61,10 +63,13 @@ import Paths_null_canvas
 blankCanvas :: Int -> (Context -> IO ()) -> IO ()
 blankCanvas port actions = do
    dataDir <- getDataDir
-   blankCanvasParams port actions dataDir False
+   blankCanvasParams port actions dataDir False Nothing
 
-blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> IO ()
-blankCanvasParams port actions dataDir performLogging = do
+blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> Maybe [TS.Text] -> IO ()
+blankCanvasParams port actions dataDir performLogging extraPathElements = do
+   let performRewrite = extraPathElements /= Nothing
+       extraPath = fromMaybe [] extraPathElements
+
    uVar <- newMVar 0
    let getUniq :: IO Int
        getUniq = do
@@ -86,6 +91,11 @@ blankCanvasParams port actions dataDir performLogging = do
             return uq
 
    app <- scottyApp $ do
+        when performRewrite (middleware (rewrite (\ pathOrig headers -> do
+                                                    print (pathOrig, headers, extraPath)
+                                                    let fixed = stripPrefix extraPath pathOrig
+                                                    print fixed
+                                                    return (fromMaybe pathOrig fixed))))
         when performLogging (middleware logStdoutDev)
 
 --        middleware $ staticRoot $ TS.pack $ (dataDir ++ "/static")
