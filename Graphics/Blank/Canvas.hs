@@ -34,6 +34,7 @@ data Command
         | BezierCurveTo (Float,Float,Float,Float,Float,Float)
         | ClearRect (Float,Float,Float,Float)
         | ClosePath
+        | Custom String
         | Fill
         | FillRect (Float,Float,Float,Float)
         | FillStyle String

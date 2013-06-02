@@ -9,6 +9,7 @@ instance Show Command where
   show (BezierCurveTo (a1,a2,a3,a4,a5,a6)) = "c.bezierCurveTo(" ++ showJ a1 ++ "," ++ showJ a2 ++ "," ++ showJ a3 ++ "," ++ showJ a4 ++ "," ++ showJ a5 ++ "," ++ showJ a6 ++ ");"
   show (ClearRect (a1,a2,a3,a4)) = "c.clearRect(" ++ showJ a1 ++ "," ++ showJ a2 ++ "," ++ showJ a3 ++ "," ++ showJ a4 ++ ");"
   show ClosePath = "c.closePath();"
+  show (Custom str) = str
   show Fill = "c.fill();"
   show (FillRect (a1,a2,a3,a4)) = "c.fillRect(" ++ showJ a1 ++ "," ++ showJ a2 ++ "," ++ showJ a3 ++ "," ++ showJ a4 ++ ");"
   show (FillStyle (a1)) = "c.fillStyle = (" ++ show a1 ++ ");"
@@ -50,6 +51,9 @@ clearRect = Command . ClearRect
 
 closePath :: () -> Canvas ()
 closePath () = Command ClosePath
+
+custom :: String -> Canvas ()
+custom = Command . Custom
 
 fill :: () -> Canvas ()
 fill () = Command Fill
