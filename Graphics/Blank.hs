@@ -65,6 +65,7 @@ blankCanvas port actions = do
    dataDir <- getDataDir
    blankCanvasParams port actions dataDir False Nothing
 
+-- | similar to blankCanvas but takes extra dataDir, performLogging, extraPathElements (to be stripped) args
 blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> Maybe [TS.Text] -> IO ()
 blankCanvasParams port actions dataDir performLogging extraPathElements = do
    let performRewrite = extraPathElements /= Nothing
