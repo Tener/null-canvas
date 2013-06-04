@@ -52,6 +52,7 @@ clearRect = Command . ClearRect
 closePath :: Canvas ()
 closePath = Command ClosePath
 
+-- | sends command (JS) unchanged 
 custom :: String -> Canvas ()
 custom = Command . Custom
 
