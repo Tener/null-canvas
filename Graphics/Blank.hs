@@ -5,6 +5,7 @@ module Graphics.Blank
          -- * Starting blank-canvas
           blankCanvas
         , blankCanvasMany
+        , blankCanvasManyParams
         , blankCanvasParams
         , blankCanvasParamsScotty
         -- * Graphics 'Context'
@@ -60,19 +61,26 @@ import Paths_null_canvas
 -- >                stroke()
 -- >
 
+-- | launch single-canvas app on specified port
 blankCanvas :: Int -> (Context -> IO ()) -> IO ()
 blankCanvas port app = blankCanvasMany port [("",app)]
 
+-- | as blankCanvas but takes customization parameters dataDir and performLogging
 blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> String -> IO ()
 blankCanvasParams port app dataDir performLogging pathPrefix = 
    scotty port =<< blankCanvasParamsScotty app dataDir performLogging pathPrefix
+
+-- | as blankCanvasMany but takes customization parameters dataDir and performLogging
+blankCanvasManyParams :: Int -> [(String, (Context -> IO ()))] -> FilePath -> Bool -> IO ()
+blankCanvasManyParams port apps dataDir performLogging = do
+   canvases <- mapM (\ (prefix,app) -> blankCanvasParamsScotty app dataDir performLogging prefix) apps
+   scotty port (sequence_ canvases)  
 
 -- | launch multiple canvas apps, each with a prefix, like `/myprefix/foo/bar`
 blankCanvasMany :: Int -> [(String, (Context -> IO ()))] -> IO ()
 blankCanvasMany port apps = do
    dataDir <- getDataDir
-   canvases <- mapM (\ (prefix,app) -> blankCanvasParamsScotty app dataDir False prefix) apps
-   scotty port (sequence_ canvases)  
+   blankCanvasManyParams port apps dataDir False
 
 -- | parametrised version of blankCanvas, also returns ScottyM application instead of running a server. use 'scotty' to run it.
 blankCanvasParamsScotty :: (Context -> IO ()) -> FilePath -> Bool -> String -> IO (ScottyM ())
