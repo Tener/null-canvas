@@ -1,13 +1,14 @@
 <html>
     <head>
         <title>Null Canvas</title>
-        <script type="text/javascript" src="jquery.js"></script>
-        <script type="text/javascript" src="jquery-json.js"></script>
+        <script type="text/javascript" src="XXX_URL_PREFIX_XXX/jquery.js"></script>
+        <script type="text/javascript" src="XXX_URL_PREFIX_XXX/jquery-json.js"></script>
     </head>
     <body style="padding: 0px; margin: 0px; border:0px">
         <div id="canvas"></div>
         <script type="text/javascript">
             var session = 0; // global session number
+            var url_prefix = "XXX_URL_PREFIX_XXX"; // url prefix, updated on runtime
             function getContext() {
                     var canvas = document.getElementById("canvas");
                     if (canvas.getContext) {
@@ -17,7 +18,7 @@
             }
             function register(name,mysession) {
                 $(document).bind(name,function (e){
-                        $.ajax({ url: "/event/" + mysession,
+                        $.ajax({ url: url_prefix + "/event/" + mysession,
                          type: "POST",
                          data: $.toJSON([name,e.which,e.pageX, e.pageY]),
                          contentType: "application/json; charset=utf-8",
@@ -25,7 +26,7 @@
                 });
             }  
             function redraw() {
-                $.ajax({ url: "/canvas/" + session,
+                $.ajax({ url: url_prefix + "/canvas/" + session,
                          type: "GET",
                          dataType: "script",
                          success: function success() {
@@ -44,7 +45,7 @@
                             '" style="border: blue solid 0px; padding: 0px; margin: 0px"></canvas>');
 
                  // start the server-side
-                $.ajax({ url: "/start",
+                $.ajax({ url: url_prefix + "/start",
                          type: "POST",
                          contentType: "application/json; charset=utf-8",
                          data: $.toJSON([w,h]),

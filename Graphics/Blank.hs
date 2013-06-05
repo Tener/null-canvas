@@ -4,13 +4,15 @@ module Graphics.Blank
         (
          -- * Starting blank-canvas
           blankCanvas
+        , blankCanvasMany
         , blankCanvasParams
+        , blankCanvasParamsScotty
         -- * Graphics 'Context'
-        , Context       -- abstact
+        , Context       -- abstract
         , send
         , events
          -- * Drawing pictures using the Canvas DSL
-        , Canvas        -- abstact
+        , Canvas        -- abstract
         , module Graphics.Blank.Generated
         , readEvent
         , tryReadEvent
@@ -26,16 +28,15 @@ module Graphics.Blank
 import Control.Concurrent
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad (when)
-import Network.Wai.Handler.Warp (run)
+import qualified Data.String
 import Web.Scotty as S
 import Network.Wai.Middleware.RequestLogger
-import Network.Wai.Middleware.Rewrite 
 import qualified Data.Text.Lazy as T
-import qualified Data.Text as TS
+import System.FilePath
 
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
-import Data.List (stripPrefix)
+import Data.List (intercalate)
+import Data.List.Split (splitOn)
 
 import Graphics.Blank.Events
 import Graphics.Blank.Context
@@ -59,18 +60,23 @@ import Paths_null_canvas
 -- >                stroke()
 -- >
 
-
 blankCanvas :: Int -> (Context -> IO ()) -> IO ()
-blankCanvas port actions = do
+blankCanvas port app = blankCanvasMany port [("",app)]
+
+blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> String -> IO ()
+blankCanvasParams port app dataDir performLogging pathPrefix = 
+   scotty port =<< blankCanvasParamsScotty app dataDir performLogging pathPrefix
+
+-- | launch multiple canvas apps, each with a prefix, like `/myprefix/foo/bar`
+blankCanvasMany :: Int -> [(String, (Context -> IO ()))] -> IO ()
+blankCanvasMany port apps = do
    dataDir <- getDataDir
-   blankCanvasParams port actions dataDir False Nothing
+   canvases <- mapM (\ (prefix,app) -> blankCanvasParamsScotty app dataDir False prefix) apps
+   scotty port (sequence_ canvases)  
 
--- | similar to blankCanvas but takes extra dataDir, performLogging, extraPathElements (to be stripped) args
-blankCanvasParams :: Int -> (Context -> IO ()) -> FilePath -> Bool -> Maybe [TS.Text] -> IO ()
-blankCanvasParams port actions dataDir performLogging extraPathElements = do
-   let performRewrite = extraPathElements /= Nothing
-       extraPath = fromMaybe [] extraPathElements
-
+-- | parametrised version of blankCanvas, also returns ScottyM application instead of running a server. use 'scotty' to run it.
+blankCanvasParamsScotty :: (Context -> IO ()) -> FilePath -> Bool -> String -> IO (ScottyM ())
+blankCanvasParamsScotty actions dataDir performLogging pathPrefix = do
    uVar <- newMVar 0
    let getUniq :: IO Int
        getUniq = do
@@ -91,26 +97,23 @@ blankCanvasParams port actions dataDir performLogging extraPathElements = do
             _ <- forkIO $ actions cxt
             return uq
 
-   app <- scottyApp $ do
-        when performRewrite (middleware (rewrite (\ pathOrig headers -> do
-                                                    print (pathOrig, headers, extraPath)
-                                                    let fixed = stripPrefix extraPath pathOrig
-                                                    print fixed
-                                                    return (fromMaybe pathOrig fixed))))
+   bareIndex <- readFile (dataDir </> "static" </> "index.html")
+   let fixedIndex = T.pack $ intercalate pathPrefix $ splitOn "XXX_URL_PREFIX_XXX" bareIndex
+
+   return $ do
         when performLogging (middleware logStdoutDev)
+        let addPrefix lit = Data.String.fromString (pathPrefix ++ lit)
 
---        middleware $ staticRoot $ TS.pack $ (dataDir ++ "/static")
+        get (addPrefix "/") $ html fixedIndex
+        get (addPrefix "/jquery.js") $ file $ dataDir </> "static" </> "jquery.js"
+        get (addPrefix "/jquery-json.js") $ file $ dataDir </> "static" </> "jquery-json.js"
 
-        get "/" $ file $ dataDir ++ "/static/index.html"
-        get "/jquery.js" $ file $ dataDir ++ "/static/jquery.js"
-        get "/jquery-json.js" $ file $ dataDir ++ "/static/jquery-json.js"
-
-        post "/start" $ do
+        post (addPrefix "/start") $ do
             req <- jsonData
             uq  <- liftIO $ newContext req
             text (T.pack $ "session = " ++ show uq ++ ";redraw();")
 
-        post "/event/:num" $ do
+        post (addPrefix "/event/:num") $ do
             header "Cache-Control" "max-age=0, no-cache, private, no-store, must-revalidate"
             num <- param "num"
             NamedEvent nm event <- jsonData
@@ -124,7 +127,7 @@ blankCanvasParams port actions dataDir performLogging extraPathElements = do
                        Just var -> do liftIO $ writeEventQueue var event
                                       json ()
 
-        get "/canvas/:num" $ do
+        get (addPrefix "/canvas/:num") $ do
             header "Cache-Control" "max-age=0, no-cache, private, no-store, must-revalidate"
             -- do something and return a new list of commands to the client
             num <- param "num"
@@ -145,8 +148,6 @@ blankCanvasParams port actions dataDir performLogging extraPathElements = do
             case Map.lookup num db of
                Nothing -> text (T.pack $ "alert('/canvas/, can not find " ++ show num ++ "');")
                Just (Context _ pic _ _) -> tryPicture pic 10
-
-   run port app
 
 -- | Sends a set of Canvas commands to the canvas. Attempts
 -- to common up as many commands as possible.
