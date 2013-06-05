@@ -37,94 +37,129 @@ instance Show Command where
 
 -- DSL
 
+-- | see <http://www.w3schools.com/tags/canvas_arc.asp>
 arc :: (Float,Float,Float,Float,Float,Bool) -> Canvas ()
 arc = Command . Arc
 
+-- | see <http://www.w3schools.com/tags/canvas_beginpath.asp>
 beginPath :: Canvas ()
 beginPath = Command BeginPath
 
+-- | see <http://www.w3schools.com/tags/canvas_beziercurveto.asp>
 bezierCurveTo :: (Float,Float,Float,Float,Float,Float) -> Canvas ()
 bezierCurveTo = Command . BezierCurveTo
 
+-- | see <http://www.w3schools.com/tags/canvas_clearrect.asp>
 clearRect :: (Float,Float,Float,Float) -> Canvas ()
 clearRect = Command . ClearRect
 
+-- | see <http://www.w3schools.com/tags/canvas_closepath.asp>
 closePath :: Canvas ()
 closePath = Command ClosePath
 
--- | sends command (JS) unchanged 
+-- | sends command (JS) unchanged. useful for extending this library with functionality it doesn't currently have. example: 
+--
+-- > custom $ unlines $ [
+-- >       "var grd=c.createRadialGradient(0,0,3,20,20,10); "
+-- >      ,"grd.addColorStop(0,\"white\");"
+-- >      ,"grd.addColorStop(1,\"red\");"
+-- >      ,"c.fillStyle=grd;"]
 custom :: String -> Canvas ()
 custom = Command . Custom
 
+-- | see <http://www.w3schools.com/tags/canvas_fill.asp>
 fill :: Canvas ()
 fill = Command Fill
 
+-- | see <http://www.w3schools.com/tags/canvas_fillrect.asp>
 fillRect :: (Float,Float,Float,Float) -> Canvas ()
 fillRect = Command . FillRect
 
+-- | see <http://www.w3schools.com/tags/canvas_fillstyle.asp>
 fillStyle :: String -> Canvas ()
 fillStyle = Command . FillStyle
 
+-- | see <http://www.w3schools.com/tags/canvas_filltext.asp>
 fillText :: (String,Float,Float) -> Canvas ()
 fillText = Command . FillText
 
+-- | see <http://www.w3schools.com/tags/canvas_font.asp>
 font :: String -> Canvas ()
 font = Command . Font
 
+-- | see <http://www.w3schools.com/tags/canvas_globalalpha.asp>
 globalAlpha :: Float -> Canvas ()
 globalAlpha = Command . GlobalAlpha
 
+-- | see <http://www.w3schools.com/tags/canvas_linecap.asp>
 lineCap :: String -> Canvas ()
 lineCap = Command . LineCap
 
+-- | see <http://www.w3schools.com/tags/canvas_linejoin.asp>
 lineJoin :: String -> Canvas ()
 lineJoin = Command . LineJoin
 
+-- | see <http://www.w3schools.com/tags/canvas_lineto.asp>
 lineTo :: (Float,Float) -> Canvas ()
 lineTo = Command . LineTo
 
+-- | see <http://www.w3schools.com/tags/canvas_linewidth.asp>
 lineWidth :: Float -> Canvas ()
 lineWidth = Command . LineWidth
 
+-- | see <http://www.w3schools.com/tags/canvas_miterlimit.asp>
 miterLimit :: Float -> Canvas ()
 miterLimit = Command . MiterLimit
 
+-- | see <http://www.w3schools.com/tags/canvas_moveto.asp>
 moveTo :: (Float,Float) -> Canvas ()
 moveTo = Command . MoveTo
 
+-- | see bottom of <http://www.w3schools.com/tags/ref_canvas.asp>
 restore :: Canvas ()
 restore = Command Restore
 
+-- | see <http://www.w3schools.com/tags/canvas_rotate.asp>
 rotate :: Float -> Canvas ()
 rotate = Command . Rotate
 
+-- | <http://www.w3schools.com/tags/canvas_scale.asp>
 scale :: (Float,Float) -> Canvas ()
 scale = Command . Scale
 
+-- | see bottom of <http://www.w3schools.com/tags/ref_canvas.asp>
 save :: Canvas ()
 save = Command Save
 
+-- | see <http://www.w3schools.com/tags/canvas_stroke.asp>
 stroke :: Canvas ()
 stroke = Command Stroke
 
+-- | see <http://www.w3schools.com/tags/canvas_strokerect.asp>
 strokeRect :: (Float,Float,Float,Float) -> Canvas ()
 strokeRect = Command . StrokeRect
 
+-- | see <http://www.w3schools.com/tags/canvas_stroketext.asp>
 strokeText :: (String,Float,Float) -> Canvas ()
 strokeText = Command . StrokeText
 
+-- | see <http://www.w3schools.com/tags/canvas_strokestyle.asp>
 strokeStyle :: String -> Canvas ()
 strokeStyle = Command . StrokeStyle
 
+-- | see <http://www.w3schools.com/tags/canvas_textalign.asp>
 textAlign :: String -> Canvas ()
 textAlign = Command . TextAlign
 
+-- | see <http://www.w3schools.com/tags/canvas_textbaseline.asp>
 textBaseline :: String -> Canvas ()
 textBaseline = Command . TextBaseline
 
+-- | see <http://www.w3schools.com/tags/canvas_transform.asp>
 transform :: (Float,Float,Float,Float,Float,Float) -> Canvas ()
 transform = Command . Transform
 
+-- | see <http://www.w3schools.com/tags/canvas_translate.asp>
 translate :: (Float,Float) -> Canvas ()
 translate = Command . Translate
 
