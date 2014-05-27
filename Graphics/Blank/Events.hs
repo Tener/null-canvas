@@ -59,6 +59,8 @@ data EventName
         | MouseOut
         | MouseOver
         | MouseUp
+        -- Click?
+        | Click
         deriving (Eq, Ord, Show, Enum, Bounded)
 
 -- | EventQueue is a STM channel ('TChan') of 'Event's.
